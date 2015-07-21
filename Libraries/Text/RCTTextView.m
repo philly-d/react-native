@@ -13,6 +13,7 @@
 #import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
 #import "UIView+React.h"
+#import "RCTTextKeyValueConstants.h"
 
 @implementation RCTTextView
 {
@@ -127,6 +128,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
+  [self sendKeyValueForText:text];
   if (_maxLength == nil) {
     return YES;
   }
@@ -148,6 +150,26 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   } else {
     return YES;
   }
+}
+
+- (void)sendKeyValueForText:(NSString *)text
+{
+  NSString *keyValue = kBackspaceKeyValue;
+  
+  BOOL keyNotBackspace = ![text isEqualToString:@""];
+  
+  if (keyNotBackspace) {
+    keyValue = text;
+    
+    if ([text isEqualToString:@"\n"]) {
+      keyValue = kEnterKeyValue;
+    }
+  }
+  
+  [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
+                                 reactTag:self.reactTag
+                                     text:keyValue
+                               eventCount:_nativeEventCount];
 }
 
 - (void)setText:(NSString *)text

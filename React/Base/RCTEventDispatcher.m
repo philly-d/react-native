@@ -123,6 +123,7 @@ RCT_EXPORT_MODULE()
     @"topChange",
     @"topSubmitEditing",
     @"topEndEditing",
+    @"topKeyPress"
   };
 
   [self sendInputEventWithName:events[type] body:text ? @{

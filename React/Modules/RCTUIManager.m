@@ -1312,6 +1312,12 @@ RCT_EXPORT_METHOD(clearJSResponder)
         @"captured": @"onEndEditingCapture"
       }
     },
+    @"topKeyPress": @{
+      @"phasedRegistrationNames": @{
+        @"bubbled": @"onKeyPress",
+        @"captured": @"onKeyPressCapture"
+      }
+    },
     @"topTextInput": @{
       @"phasedRegistrationNames": @{
         @"bubbled": @"onTextInput",
