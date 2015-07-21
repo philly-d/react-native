@@ -13,6 +13,7 @@
 #import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
 #import "UIView+React.h"
+#import "RCTTextKeyValueConstants.h"
 
 @implementation RCTTextField
 {
@@ -38,6 +39,98 @@
 
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+  // If the range length is 1, it signifies a backspace key.
+  // We should ignore them here and let the `deleteBackward` method handle all backspace keys.
+  if (range.length == 1) {
+    return NO;
+  }
+  
+  [self sendKeyValueForString:string];
+  
+  if (_maxLength == nil || [string isEqualToString:@"\n"]) {  // Make sure forms can be submitted via return
+    return YES;
+  }
+  NSUInteger allowedLength = _maxLength.integerValue - textField.text.length + range.length;
+  if (string.length > allowedLength) {
+    if (string.length > 1) {
+      // Truncate the input string so the result is exactly maxLength
+      NSString *limitedString = [string substringToIndex:allowedLength];
+      NSMutableString *newString = textField.text.mutableCopy;
+      [newString replaceCharactersInRange:range withString:limitedString];
+      textField.text = newString;
+      // Collapse selection at end of insert to match normal paste behavior
+      UITextPosition *insertEnd = [textField positionFromPosition:textField.beginningOfDocument
+                                                          offset:(range.location + allowedLength)];
+      textField.selectedTextRange = [textField textRangeFromPosition:insertEnd toPosition:insertEnd];
+      [self _textFieldDidChange];
+    }
+    return NO;
+  } else {
+    return YES;
+  }
+}
+
+- (void)sendKeyValueForString:(NSString *)string
+{
+  NSString *keyValue = kBackspaceKeyValue;
+  
+  BOOL keyNotBackspace = ![string isEqualToString:@""];
+  
+  if (keyNotBackspace) {
+    keyValue = string;
+    
+    if ([string isEqualToString:@"\n"]) {
+      keyValue = kEnterKeyValue;
+    }
+  }
+  
+  [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
+                                 reactTag:self.reactTag
+                                     text:keyValue
+                               eventCount:_nativeEventCount];
+}
+
+/**
+ * This method is a workaround since there is a bug in iOS 8.0 to 8.2 where the `deleteBackward` delegate
+ * method was not being called. See: https://devforums.apple.com/message/1009150#1009150 < login required
+ * The bug has since been resolved in iOS 8.3.
+ */
+- (BOOL)keyboardInputShouldDelete:(UITextField *)textField
+{
+  BOOL shouldDelete = YES;
+  
+  if ([UITextField instancesRespondToSelector:_cmd]) {
+    BOOL (*keyboardInputShouldDelete)(id, SEL, UITextField *) = (BOOL (*)(id, SEL, UITextField *))[UITextField instanceMethodForSelector:_cmd];
+    
+    if (keyboardInputShouldDelete) {
+      shouldDelete = keyboardInputShouldDelete(self, _cmd, textField);
+    }
+  }
+  
+  BOOL isIos8 = ([[[UIDevice currentDevice] systemVersion] intValue] == 8);
+  BOOL isLessThanIos8_3 = ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.3f);
+  
+  if (isIos8 && isLessThanIos8_3) {
+    [self deleteBackward];
+    return NO;
+  }
+  
+  return shouldDelete;
+}
+
+// We use this `UIKeyInput` delegate method since `shouldChangeCharactersInRange` doesn't fire when
+// there isn't any text in the UITextField. This fires no matter what.
+- (void)deleteBackward
+{
+  [super deleteBackward];
+  
+  if ([self.delegate respondsToSelector:@selector(textField:shouldChangeCharactersInRange:replacementString:)]) {
+    [self.delegate textField:self shouldChangeCharactersInRange:NSMakeRange(0, 0) replacementString:@""];
+  }
+}
 
 - (void)setText:(NSString *)text
 {

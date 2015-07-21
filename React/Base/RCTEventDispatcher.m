@@ -140,6 +140,7 @@ RCT_EXPORT_MODULE()
     @"change",
     @"submitEditing",
     @"endEditing",
+	@"keyPress"
   };
 
   [self sendInputEventWithName:events[type] body:text ? @{

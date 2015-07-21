@@ -16,7 +16,8 @@ typedef NS_ENUM(NSInteger, RCTTextEventType) {
   RCTTextEventTypeBlur,
   RCTTextEventTypeChange,
   RCTTextEventTypeSubmit,
-  RCTTextEventTypeEnd
+  RCTTextEventTypeEnd,
+  RCTTextEventTypeKeyPress
 };
 
 typedef NS_ENUM(NSInteger, RCTScrollEventType) {
