@@ -231,6 +231,7 @@ var TextInput = React.createClass({
     /**
      * Callback that is called when a key is pressed.
      * Pressed key value is passed as an argument to the callback handler.
+     * Fires before onChange callbacks.
      */
     onKeyPress: PropTypes.func,
     /**
