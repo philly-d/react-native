@@ -168,7 +168,8 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
                                  reactTag:self.reactTag
-                                     text:keyValue
+                                     text:nil
+                                      key:keyValue
                                eventCount:_nativeEventCount];
 }
 
@@ -224,6 +225,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeFocus
                                  reactTag:self.reactTag
                                      text:textView.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 
@@ -234,6 +236,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeChange
                                  reactTag:self.reactTag
                                      text:textView.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 
 }
@@ -243,6 +246,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeEnd
                                  reactTag:self.reactTag
                                      text:textView.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 
@@ -262,6 +266,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
     [_eventDispatcher sendTextEventWithType:RCTTextEventTypeBlur
                                    reactTag:self.reactTag
                                        text:_textView.text
+                                        key:nil
                                  eventCount:_nativeEventCount];
   }
   return result;
