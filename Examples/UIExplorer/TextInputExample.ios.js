@@ -73,6 +73,9 @@ var TextEventsExample = React.createClass({
           onSubmitEditing={(event) => this.updateText(
             'onSubmitEditing text: ' + event.nativeEvent.text
           )}
+          onKeyPress={(event) => this.updateText(
+            'onKeyPress key: ' + event.nativeEvent.key
+          )}
           style={styles.default}
         />
         <Text style={styles.eventLabel}>
