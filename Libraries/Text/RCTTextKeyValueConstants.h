@@ -7,5 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+extern NSString *const kNewlineRawValue;
+
 extern NSString *const kBackspaceKeyValue;
 extern NSString *const kEnterKeyValue;
