@@ -20,6 +20,7 @@
   RCTEventDispatcher *_eventDispatcher;
   NSMutableArray *_reactSubviews;
   BOOL _jsRequestingFirstResponder;
+  BOOL _textWasPasted;
   NSInteger _nativeEventCount;
 }
 
@@ -42,15 +43,20 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-  // If the range length is 1, it signifies a backspace key.
+  // If the range length is greater than 0 and the string is blank, it signifies a backspace key.
   // We should ignore them here and let the `deleteBackward` method handle all backspace keys.
-  if (range.length == 1) {
+  if (range.length > 0 && string.length == 0) {
     return NO;
   }
   
-  [self sendKeyValueForString:string];
+  // Only allow single keypresses for onKeyPress, pasted text will not be sent.
+  if (_textWasPasted == NO) {
+    [self sendKeyValueForString:string];
+  } else {
+    _textWasPasted = NO;
+  }
   
-  if (_maxLength == nil || [string isEqualToString:@"\n"]) {  // Make sure forms can be submitted via return
+  if (_maxLength == nil || [string isEqualToString:kNewlineRawValue]) {  // Make sure forms can be submitted via return
     return YES;
   }
   NSUInteger allowedLength = _maxLength.integerValue - textField.text.length + range.length;
@@ -73,18 +79,22 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   }
 }
 
+- (void)paste:(id)sender
+{
+  _textWasPasted = YES;
+  [super paste:sender];
+}
+
 - (void)sendKeyValueForString:(NSString *)string
 {
-  NSString *keyValue = kBackspaceKeyValue;
+  NSString *keyValue;
   
-  BOOL keyNotBackspace = ![string isEqualToString:@""];
-  
-  if (keyNotBackspace) {
+  if ([string isEqualToString:kNewlineRawValue]) {
+    keyValue = kEnterKeyValue;
+  } else if ([string isEqualToString:@""]) {
+    keyValue = kBackspaceKeyValue;
+  } else {
     keyValue = string;
-    
-    if ([string isEqualToString:@"\n"]) {
-      keyValue = kEnterKeyValue;
-    }
   }
   
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
