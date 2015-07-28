@@ -20,6 +20,7 @@
   NSMutableArray *_reactSubviews;
   BOOL _jsRequestingFirstResponder;
   NSInteger _nativeEventCount;
+  BOOL _submitted;
 }
 
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher
@@ -146,6 +147,7 @@ static void RCTUpdatePlaceholder(RCTTextField *self)
 }
 - (void)textFieldSubmitEditing
 {
+  _submitted = YES;
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeSubmit
                                  reactTag:self.reactTag
                                      text:self.text
@@ -167,7 +169,11 @@ static void RCTUpdatePlaceholder(RCTTextField *self)
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField
 {
-  return _blurOnSubmit;
+  if (_submitted) {
+    _submitted = NO;
+    return _blurOnSubmit;
+  }
+  return YES;
 }
 
 - (BOOL)becomeFirstResponder
