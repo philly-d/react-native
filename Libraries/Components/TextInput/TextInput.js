@@ -64,6 +64,10 @@ var viewConfigAndroid = {
 var RCTTextView = requireNativeComponent('RCTTextView', null);
 var RCTTextField = requireNativeComponent('RCTTextField', null);
 
+type DefaultProps = {
+  blurOnSubmit: boolean;
+};
+
 type Event = Object;
 
 /**
@@ -288,6 +292,12 @@ var TextInput = React.createClass({
      */
     selectTextOnFocus: PropTypes.bool,
     /**
+     * If true, the text field will blur when submitted.
+     * The default value is true.
+     * @platform ios
+     */
+    blurOnSubmit: PropTypes.bool,
+    /**
      * Styles
      */
     style: Text.propTypes.style,
@@ -300,6 +310,12 @@ var TextInput = React.createClass({
      * @platform android
      */
     underlineColorAndroid: PropTypes.string,
+  },
+
+  getDefaultProps: function(): DefaultProps {
+    return {
+      blurOnSubmit: true,
+    };
   },
 
   /**
