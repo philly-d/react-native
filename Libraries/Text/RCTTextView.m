@@ -180,10 +180,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 {
   NSString *keyValue;
   
-  if ([text isEqualToString:kNewlineRawValue]) {
-    keyValue = kEnterKeyValue;
+  if ([text isEqualToString:RCTNewlineRawValue]) {
+    keyValue = RCTEnterKeyValue;
   } else if ([text isEqualToString:@""]) {
-    keyValue = kBackspaceKeyValue;
+    keyValue = RCTBackspaceKeyValue;
   } else {
     keyValue = text;
   }

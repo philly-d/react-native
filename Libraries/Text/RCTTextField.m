@@ -56,7 +56,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     _textWasPasted = NO;
   }
   
-  if (_maxLength == nil || [string isEqualToString:kNewlineRawValue]) {  // Make sure forms can be submitted via return
+  if (_maxLength == nil || [string isEqualToString:RCTNewlineRawValue]) {  // Make sure forms can be submitted via return
     return YES;
   }
   NSUInteger allowedLength = _maxLength.integerValue - textField.text.length + range.length;
@@ -89,10 +89,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 {
   NSString *keyValue;
   
-  if ([string isEqualToString:kNewlineRawValue]) {
-    keyValue = kEnterKeyValue;
+  if ([string isEqualToString:RCTNewlineRawValue]) {
+    keyValue = RCTEnterKeyValue;
   } else if ([string isEqualToString:@""]) {
-    keyValue = kBackspaceKeyValue;
+    keyValue = RCTBackspaceKeyValue;
   } else {
     keyValue = string;
   }

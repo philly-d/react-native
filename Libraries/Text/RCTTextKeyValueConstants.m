@@ -9,7 +9,7 @@
 
 #import <Foundation/Foundation.h>
 
-NSString *const kNewlineRawValue = @"\n";
+NSString *const RCTNewlineRawValue = @"\n";
 
-NSString *const kBackspaceKeyValue = @"Backspace";
-NSString *const kEnterKeyValue = @"Enter";
+NSString *const RCTBackspaceKeyValue = @"Backspace";
+NSString *const RCTEnterKeyValue = @"Enter";
