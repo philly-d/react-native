@@ -218,7 +218,7 @@ static UIImage *RCTScaledImageForAsset(ALAssetRepresentation *representation,
     }
     if ([imageTag.lowercaseString hasSuffix:@".gif"]) {
       return [[RCTImageDownloader sharedInstance] downloadDataForURL:url progressBlock:progress block:^(NSData *data, NSError *error) {
-        id image = RCTGIFImageWithFileURL([RCTConvert NSURL:imageTag]);
+        id image = RCTGIFImageWithData(data);
         if (!image && !error) {
           NSString *errorMessage = [NSString stringWithFormat:@"Unable to load GIF image: %@", imageTag];
           error = RCTErrorWithMessage(errorMessage);
