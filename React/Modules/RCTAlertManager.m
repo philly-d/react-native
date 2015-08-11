@@ -11,6 +11,7 @@
 
 #import "RCTAssert.h"
 #import "RCTLog.h"
+#import "RCTUtils.h"
 
 @interface RCTAlertManager() <UIAlertViewDelegate>
 
@@ -69,12 +70,12 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args
     RCTLogError(@"Must have at least one button.");
     return;
   }
-
-  UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title
-                                                      message:nil
-                                                     delegate:self
-                                            cancelButtonTitle:nil
-                                            otherButtonTitles:nil];
+  
+  if (RCTRunningInAppExtension()) {
+    return;
+  }
+  
+  UIAlertView *alertView = RCTAlertView(title, nil, self, nil, nil);
 
   NSMutableArray *buttonKeys = [[NSMutableArray alloc] initWithCapacity:buttons.count];
 
