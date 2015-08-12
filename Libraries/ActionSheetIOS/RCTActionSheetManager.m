@@ -95,6 +95,12 @@ RCT_EXPORT_METHOD(showShareActionSheetWithOptions:(NSDictionary *)options
   }
 
   UIActivityViewController *share = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
+
+  id excluded = options[@"excluded"];
+  if ([excluded isKindOfClass:[NSArray class]]) {
+    share.excludedActivityTypes = excluded;
+  }
+
   UIViewController *ctrl = [[[RCTSharedApplication() delegate] window] rootViewController];
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0
