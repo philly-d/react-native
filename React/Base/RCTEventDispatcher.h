@@ -16,7 +16,8 @@ typedef NS_ENUM(NSInteger, RCTTextEventType) {
   RCTTextEventTypeBlur,
   RCTTextEventTypeChange,
   RCTTextEventTypeSubmit,
-  RCTTextEventTypeEnd
+  RCTTextEventTypeEnd,
+  RCTTextEventTypeKeyPress
 };
 
 typedef NS_ENUM(NSInteger, RCTScrollEventType) {
@@ -85,6 +86,7 @@ extern const NSInteger RCTTextUpdateLagWarningThreshold;
 - (void)sendTextEventWithType:(RCTTextEventType)type
                      reactTag:(NSNumber *)reactTag
                          text:(NSString *)text
+                          key:(NSString *)key
                    eventCount:(NSInteger)eventCount;
 
 - (void)sendEvent:(id<RCTEvent>)event;

@@ -13,12 +13,14 @@
 #import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
 #import "UIView+React.h"
+#import "RCTTextKeyValueConstants.h"
 
 @implementation RCTTextField
 {
   RCTEventDispatcher *_eventDispatcher;
   NSMutableArray *_reactSubviews;
   BOOL _jsRequestingFirstResponder;
+  BOOL _textWasPasted;
   NSInteger _nativeEventCount;
 }
 
@@ -42,7 +44,20 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-  if (_maxLength == nil || [string isEqualToString:@"\n"]) {  // Make sure forms can be submitted via return
+  // If the range length is greater than 0 and the string is blank, it signifies a backspace key.
+  // We should ignore them here and let the `deleteBackward` method handle all backspace keys.
+  if (range.length > 0 && string.length == 0) {
+    return NO;
+  }
+  
+  // Only allow single keypresses for onKeyPress, pasted text will not be sent.
+  if (_textWasPasted == NO) {
+    [self sendKeyValueForString:string];
+  } else {
+    _textWasPasted = NO;
+  }
+  
+  if (_maxLength == nil || [string isEqualToString:RCTNewlineRawValue]) {  // Make sure forms can be submitted via return
     return YES;
   }
   NSUInteger allowedLength = _maxLength.integerValue - textField.text.length + range.length;
@@ -62,6 +77,70 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
     return NO;
   } else {
     return YES;
+  }
+}
+
+- (void)paste:(id)sender
+{
+  _textWasPasted = YES;
+  [super paste:sender];
+}
+
+- (void)sendKeyValueForString:(NSString *)string
+{
+  NSString *keyValue;
+  
+  if ([string isEqualToString:RCTNewlineRawValue]) {
+    keyValue = RCTEnterKeyValue;
+  } else if ([string isEqualToString:@""]) {
+    keyValue = RCTBackspaceKeyValue;
+  } else {
+    keyValue = string;
+  }
+  
+  [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
+                                 reactTag:self.reactTag
+                                     text:nil
+                                      key:keyValue
+                               eventCount:_nativeEventCount];
+}
+
+/**
+ * This method is a workaround since there is a bug in iOS 8.0 to 8.2 where the `deleteBackward` delegate
+ * method was not being called. See: https://devforums.apple.com/message/1009150#1009150 < login required
+ * The bug has since been resolved in iOS 8.3.
+ */
+- (BOOL)keyboardInputShouldDelete:(UITextField *)textField
+{
+  BOOL shouldDelete = YES;
+  
+  if ([UITextField instancesRespondToSelector:_cmd]) {
+    BOOL (*keyboardInputShouldDelete)(id, SEL, UITextField *) = (BOOL (*)(id, SEL, UITextField *))[UITextField instanceMethodForSelector:_cmd];
+    
+    if (keyboardInputShouldDelete) {
+      shouldDelete = keyboardInputShouldDelete(self, _cmd, textField);
+    }
+  }
+  
+  BOOL isIos8 = ([[[UIDevice currentDevice] systemVersion] intValue] == 8);
+  BOOL isLessThanIos8_3 = ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.3f);
+  
+  if (isIos8 && isLessThanIos8_3) {
+    [self deleteBackward];
+    return NO;
+  }
+  
+  return shouldDelete;
+}
+
+// We use this `UIKeyInput` delegate method since `shouldChangeCharactersInRange` doesn't fire when
+// there isn't any text in the UITextField. This fires no matter what.
+- (void)deleteBackward
+{
+  [super deleteBackward];
+  
+  if ([self.delegate respondsToSelector:@selector(textField:shouldChangeCharactersInRange:replacementString:)]) {
+    [self.delegate textField:self shouldChangeCharactersInRange:NSMakeRange(0, 0) replacementString:@""];
   }
 }
 
@@ -160,6 +239,7 @@ static void RCTUpdatePlaceholder(RCTTextField *self)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeChange
                                  reactTag:self.reactTag
                                      text:self.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 
@@ -168,6 +248,7 @@ static void RCTUpdatePlaceholder(RCTTextField *self)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeEnd
                                  reactTag:self.reactTag
                                      text:self.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 - (void)_textFieldSubmitEditing
@@ -175,6 +256,7 @@ static void RCTUpdatePlaceholder(RCTTextField *self)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeSubmit
                                  reactTag:self.reactTag
                                      text:self.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 
@@ -188,6 +270,7 @@ static void RCTUpdatePlaceholder(RCTTextField *self)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeFocus
                                  reactTag:self.reactTag
                                      text:self.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 
@@ -207,6 +290,7 @@ static void RCTUpdatePlaceholder(RCTTextField *self)
     [_eventDispatcher sendTextEventWithType:RCTTextEventTypeBlur
                                    reactTag:self.reactTag
                                        text:self.text
+                                        key:nil
                                  eventCount:_nativeEventCount];
   }
   return result;
