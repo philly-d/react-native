@@ -139,7 +139,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
    * that was pasted.
    */
   if (text.length <= 1) {
-    [self sendKeyValueForText:text];
+    [self sendKeyValueForText:text atRange:range];
   }
   
   if (_maxLength == nil) {
@@ -165,7 +165,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   }
 }
 
-- (void)sendKeyValueForText:(NSString *)text
+- (void)sendKeyValueForText:(NSString *)text atRange:(NSRange)range
 {
   NSString *keyValue;
   
@@ -176,11 +176,16 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   } else {
     keyValue = text;
   }
+    NSDictionary *info = @{
+                           @"keyValue": keyValue,
+                           @"location": @(range.location),
+                           @"length": @(range.length)
+                           };
   
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
                                  reactTag:self.reactTag
                                      text:nil
-                                      key:keyValue
+                                      key:info
                                eventCount:_nativeEventCount];
 }
 

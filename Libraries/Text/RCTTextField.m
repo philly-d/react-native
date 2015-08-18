@@ -44,15 +44,10 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-  // If the range length is greater than 0 and the string is blank, it signifies a backspace key.
-  // We should ignore them here and let the `deleteBackward` method handle all backspace keys.
-  if (range.length > 0 && string.length == 0) {
-    return NO;
-  }
   
   // Only allow single keypresses for onKeyPress, pasted text will not be sent.
   if (_textWasPasted == NO) {
-    [self sendKeyValueForString:string];
+    [self sendKeyValueForString:string atRange:range];
   } else {
     _textWasPasted = NO;
   }
@@ -86,7 +81,7 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   [super paste:sender];
 }
 
-- (void)sendKeyValueForString:(NSString *)string
+- (void)sendKeyValueForString:(NSString *)string atRange:(NSRange)range
 {
   NSString *keyValue;
   
@@ -97,11 +92,17 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
   } else {
     keyValue = string;
   }
+    
+    NSDictionary *info = @{
+                            @"keyValue": keyValue,
+                            @"location": @(range.location),
+                            @"length": @(range.length)
+                        };
   
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
                                  reactTag:self.reactTag
                                      text:nil
-                                      key:keyValue
+                                      key:info
                                eventCount:_nativeEventCount];
 }
 
@@ -137,11 +138,16 @@ RCT_NOT_IMPLEMENTED(-initWithCoder:(NSCoder *)aDecoder)
 // there isn't any text in the UITextField. This fires no matter what.
 - (void)deleteBackward
 {
+    
+    UITextRange *range = self.selectedTextRange;
+    NSInteger location = [self offsetFromPosition:self.beginningOfDocument toPosition:range.start];
+    NSInteger length = [self offsetFromPosition:range.start toPosition:range.end];
+    if (location == 0 && length == 0) {
+        if ([self.delegate respondsToSelector:@selector(textField:shouldChangeCharactersInRange:replacementString:)]) {
+            [self.delegate textField:self shouldChangeCharactersInRange:NSMakeRange(0, 0) replacementString:@""];
+        }
+    }
   [super deleteBackward];
-  
-  if ([self.delegate respondsToSelector:@selector(textField:shouldChangeCharactersInRange:replacementString:)]) {
-    [self.delegate textField:self shouldChangeCharactersInRange:NSMakeRange(0, 0) replacementString:@""];
-  }
 }
 
 - (void)setText:(NSString *)text
