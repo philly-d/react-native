@@ -141,7 +141,7 @@ RCT_EXPORT_MODULE()
     @"change",
     @"submitEditing",
     @"endEditing",
-	@"keyPress"
+    @"keyPress"
   };
   
   NSMutableDictionary *body = [[NSMutableDictionary alloc] initWithDictionary:@{
