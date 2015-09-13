@@ -24,5 +24,6 @@
 
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
 - (void)textFieldDidChange;
+- (BOOL)textFieldShouldEndEditing:(RCTTextField *)textField;
 
 @end
