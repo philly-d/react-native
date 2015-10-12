@@ -144,7 +144,7 @@ RCT_EXPORT_MODULE()
 - (void)sendTextEventWithType:(RCTTextEventType)type
                      reactTag:(NSNumber *)reactTag
                          text:(NSString *)text
-                          key:(NSDictionary *)key
+                          key:(NSString *)key
                    eventCount:(NSInteger)eventCount
 {
   static NSString *events[] = {
