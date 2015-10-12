@@ -11,7 +11,7 @@
 
 @class RCTEventDispatcher;
 
-@interface RCTTextField : UITextField
+@interface RCTTextField : UITextField <UITextFieldDelegate, UIKeyInput>
 
 @property (nonatomic, assign) BOOL caretHidden;
 @property (nonatomic, assign) BOOL autoCorrect;
