@@ -144,7 +144,6 @@ RCT_EXPORT_MODULE()
 - (void)sendTextEventWithType:(RCTTextEventType)type
                      reactTag:(NSNumber *)reactTag
                          text:(NSString *)text
-                          key:(NSString *)key
                    eventCount:(NSInteger)eventCount
 {
   static NSString *events[] = {
@@ -153,23 +152,16 @@ RCT_EXPORT_MODULE()
     @"change",
     @"submitEditing",
     @"endEditing",
-    @"keyPress"
   };
-  
-  NSMutableDictionary *body = [[NSMutableDictionary alloc] initWithDictionary:@{
+
+  [self sendInputEventWithName:events[type] body:text ? @{
+    @"text": text,
+    @"eventCount": @(eventCount),
+    @"target": reactTag
+  } : @{
     @"eventCount": @(eventCount),
     @"target": reactTag
   }];
-  
-  if (text) {
-    [body addEntriesFromDictionary:@{@"text": text}];
-  }
-  
-  if (key) {
-    [body addEntriesFromDictionary:@{@"key": key}];
-  }
-  
-  [self sendInputEventWithName:events[type] body:body];
 }
 
 - (void)sendEvent:(id<RCTEvent>)event

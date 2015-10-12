@@ -42,7 +42,6 @@ var TextEventsExample = React.createClass({
       curText: '<No Event>',
       prevText: '<No Event>',
       prev2Text: '<No Event>',
-      prev3Text: '<No Event>',
     };
   },
 
@@ -52,7 +51,6 @@ var TextEventsExample = React.createClass({
         curText: text,
         prevText: state.curText,
         prev2Text: state.prevText,
-        prev3Text: state.prev2Text,
       };
     });
   },
@@ -75,16 +73,12 @@ var TextEventsExample = React.createClass({
           onSubmitEditing={(event) => this.updateText(
             'onSubmitEditing text: ' + event.nativeEvent.text
           )}
-          onKeyPress={(event) => this.updateText(
-            'onKeyPress key: ' + event.nativeEvent.key
-          )}
           style={styles.default}
         />
         <Text style={styles.eventLabel}>
           {this.state.curText}{'\n'}
           (prev: {this.state.prevText}){'\n'}
-          (prev2: {this.state.prev2Text}){'\n'}
-          (prev3: {this.state.prev3Text})
+          (prev2: {this.state.prev2Text})
         </Text>
       </View>
     );
