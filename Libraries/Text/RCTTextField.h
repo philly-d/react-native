@@ -25,6 +25,6 @@
 
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
 - (void)textFieldDidChange;
-- (void)sendKeyValueForString:(NSString *)string;
+- (void)sendKeyValueForString:(NSString *)string atRange:(NSRange)range;
 
 @end

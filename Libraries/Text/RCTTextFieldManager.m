@@ -33,7 +33,7 @@ RCT_EXPORT_MODULE()
 {
   // Only allow single keypresses for onKeyPress, pasted text will not be sent.
   if (textField.textWasPasted == NO) {
-    [textField sendKeyValueForString:string];
+    [textField sendKeyValueForString:string atRange:range];
   } else {
     [textField setTextWasPasted:NO];
   }

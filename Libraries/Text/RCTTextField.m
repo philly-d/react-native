@@ -40,7 +40,7 @@
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
-- (void)sendKeyValueForString:(NSString *)string
+- (void)sendKeyValueForString:(NSString *)string atRange:(NSRange)range
 {
   NSString *keyValue;
   
@@ -52,10 +52,16 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     keyValue = string;
   }
   
+  NSDictionary *keyInfo = @{
+                            @"value": keyValue,
+                            @"location": @(range.location),
+                            @"length": @(range.length)
+                            };
+  
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
                                  reactTag:self.reactTag
                                      text:nil
-                                      key:keyValue
+                                      key:keyInfo
                                eventCount:_nativeEventCount];
 }
 
