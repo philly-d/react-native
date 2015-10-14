@@ -13,6 +13,7 @@
 #import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
 #import "UIView+React.h"
+#import "RCTTextKeyValueConstants.h"
 
 @implementation RCTTextView
 {
@@ -139,6 +140,20 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
+  /**
+   * Only allow single keypresses for onKeyPress, most text pasted in will not be sent.
+   *
+   * Unfortunately, UITextView for some reason doesn't implement `paste:sender` like UITextField, so we have
+   * no way of distinguishing a single character paste from a single character keyPress. :(
+   * I'm assuming this is a bug in iOS, but I couldn't find out for sure.
+   *
+   * End result: Single character pastes will register and fire a keyPress event with the character
+   * that was pasted.
+   */
+  if (text.length <= 1) {
+    [self sendKeyValueForText:text];
+  }
+  
   if (_maxLength == nil) {
     return YES;
   }
@@ -160,6 +175,25 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   } else {
     return YES;
   }
+}
+
+- (void)sendKeyValueForText:(NSString *)text
+{
+  NSString *keyValue;
+  
+  if ([text isEqualToString:RCTNewlineRawValue]) {
+    keyValue = RCTEnterKeyValue;
+  } else if ([text isEqualToString:@""]) {
+    keyValue = RCTBackspaceKeyValue;
+  } else {
+    keyValue = text;
+  }
+  
+  [_eventDispatcher sendTextEventWithType:RCTTextEventTypeKeyPress
+                                 reactTag:self.reactTag
+                                     text:nil
+                                      key:keyValue
+                               eventCount:_nativeEventCount];
 }
 
 - (void)setText:(NSString *)text
@@ -214,6 +248,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeFocus
                                  reactTag:self.reactTag
                                      text:textView.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 
@@ -224,6 +259,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeChange
                                  reactTag:self.reactTag
                                      text:textView.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 
 }
@@ -233,6 +269,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeEnd
                                  reactTag:self.reactTag
                                      text:textView.text
+                                      key:nil
                                eventCount:_nativeEventCount];
 }
 
@@ -252,6 +289,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
     [_eventDispatcher sendTextEventWithType:RCTTextEventTypeBlur
                                    reactTag:self.reactTag
                                        text:_textView.text
+                                        key:nil
                                  eventCount:_nativeEventCount];
   }
   return result;
