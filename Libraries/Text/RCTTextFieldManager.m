@@ -68,6 +68,11 @@ RCT_EXPORT_MODULE()
   return YES;
 }
 
+- (BOOL)textFieldShouldEndEditing:(RCTTextField *)textField
+{
+  return [textField textFieldShouldEndEditing:textField];
+}
+
 RCT_EXPORT_VIEW_PROPERTY(caretHidden, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(autoCorrect, BOOL)
 RCT_REMAP_VIEW_PROPERTY(editable, enabled, BOOL)
@@ -78,6 +83,7 @@ RCT_EXPORT_VIEW_PROPERTY(maxLength, NSNumber)
 RCT_EXPORT_VIEW_PROPERTY(clearButtonMode, UITextFieldViewMode)
 RCT_REMAP_VIEW_PROPERTY(clearTextOnFocus, clearsOnBeginEditing, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(selectTextOnFocus, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(blurOnSubmit, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(keyboardType, UIKeyboardType)
 RCT_EXPORT_VIEW_PROPERTY(returnKeyType, UIReturnKeyType)
 RCT_EXPORT_VIEW_PROPERTY(enablesReturnKeyAutomatically, BOOL)
